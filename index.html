@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coleção de Jogos — Catálogo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#efe7d6;
+    --paper-2:#e6dcc6;
+    --ink:#221b14;
+    --ink-soft:#5a5040;
+    --crimson:#b23a2e;
+    --forest:#35603d;
+    --ochre:#c08a1f;
+    --indigo:#2b4570;
+    --rule:#c9bd9e;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    background-image:radial-gradient(circle at 1px 1px, rgba(34,27,20,0.06) 1px, transparent 0);
+    background-size:22px 22px;
+    color:var(--ink);
+    font-family:"IBM Plex Sans", sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  button{font-family:inherit;}
+  .wrap{max-width:920px; margin:0 auto; padding:0 20px 100px;}
+
+  header{padding:56px 20px 40px; text-align:center;}
+  header .eyebrow{font-family:"IBM Plex Mono", monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft);}
+  header h1{font-family:"Fraunces", serif; font-weight:700; font-size:clamp(38px, 7vw, 64px); margin:8px 0 6px; letter-spacing:-0.01em;}
+  header p.sub{color:var(--ink-soft); font-size:15px; max-width:480px; margin:0 auto;}
+  .suit-row{display:flex; justify-content:center; gap:10px; margin-top:22px;}
+  .pip{width:9px;height:9px;border-radius:50%; opacity:.9;}
+
+  .toolbar{
+    max-width:640px;
+    margin:32px auto 0;
+    display:flex;
+    gap:10px;
+    align-items:center;
+  }
+  .search-bar{position:relative; flex:1;}
+  .search-bar input{
+    width:100%; padding:13px 16px 13px 40px;
+    border:1.5px solid var(--ink); border-radius:999px;
+    background:var(--paper); font-size:14px; color:var(--ink); outline:none;
+  }
+  .search-bar input:focus{box-shadow:0 0 0 3px rgba(34,27,20,0.12);}
+  .search-bar::before{content:"⌕"; position:absolute; left:16px; top:50%; transform:translateY(-50%); font-size:16px; color:var(--ink-soft);}
+
+  .btn{
+    font-family:"IBM Plex Mono", monospace;
+    font-size:13px;
+    border:1.5px solid var(--ink);
+    border-radius:999px;
+    padding:11px 18px;
+    background:var(--ink);
+    color:var(--paper);
+    cursor:pointer;
+    white-space:nowrap;
+    transition:opacity .15s ease;
+  }
+  .btn:hover{opacity:.85;}
+  .btn.ghost{background:transparent; color:var(--ink);}
+  .btn.small{padding:6px 12px; font-size:12px;}
+  .btn.danger{background:var(--crimson); border-color:var(--crimson); color:#fff;}
+
+  .export-row{
+    max-width:640px;
+    margin:14px auto 0;
+    text-align:center;
+  }
+  .export-row .hint{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:8px;
+    line-height:1.5;
+  }
+
+  [data-editor-only]{display:none;}
+  body.is-editor .export-row[data-editor-only]{display:block;}
+  body.is-editor button[data-editor-only]{display:inline-block;}
+
+  .tabs{
+    max-width:640px;
+    margin:28px auto 0;
+    display:flex;
+    gap:6px;
+    background:var(--paper-2);
+    border:1.5px solid var(--ink);
+    border-radius:999px;
+    padding:4px;
+  }
+  .tab-btn{
+    flex:1;
+    border:none;
+    background:transparent;
+    border-radius:999px;
+    padding:10px 14px;
+    font-family:"IBM Plex Mono", monospace;
+    font-size:12.5px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    color:var(--ink-soft);
+    cursor:pointer;
+  }
+  .tab-btn.active{background:var(--ink); color:var(--paper);}
+
+  .section{display:none;}
+  .section.active{display:block;}
+
+  .grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:16px; margin-top:36px;}
+
+  .wish-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:14px; margin-top:32px;}
+  .wish-card{
+    position:relative;
+    background:var(--paper-2);
+    border:1.5px solid var(--ink);
+    border-radius:14px;
+    overflow:hidden;
+    cursor:pointer;
+    box-shadow:3px 3px 0 rgba(34,27,20,0.18);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .wish-card:hover{transform:translate(-2px,-2px); box-shadow:5px 5px 0 rgba(34,27,20,0.22);}
+  .wish-card .wish-thumb{width:100%; height:140px; object-fit:contain; display:block; background:var(--paper);}
+  .wish-card .wish-thumb-fallback{
+    width:100%; height:140px; display:flex; align-items:center; justify-content:center;
+    color:var(--ink-soft); font-size:12px; font-family:"IBM Plex Mono", monospace; text-align:center; padding:10px;
+  }
+  .wish-card .wish-name{padding:10px 12px 12px; font-family:"Fraunces", serif; font-weight:600; font-size:15px; line-height:1.3;}
+  .wish-card .wish-actions{
+    position:absolute; top:8px; right:8px; display:flex; gap:6px;
+  }
+  .wish-card .wish-actions button{
+    width:26px; height:26px; border-radius:50%; border:1px solid var(--ink);
+    background:var(--paper); font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .wish-card .wish-actions button:hover{background:var(--ink); color:var(--paper);}
+  .wish-tag{
+    position:absolute; top:8px; left:8px;
+    font-family:"IBM Plex Mono", monospace; font-size:10px;
+    background:var(--ochre); color:#2a1f04; padding:3px 8px; border-radius:999px;
+  }
+  .empty-wish{text-align:center; padding:40px 20px; color:var(--ink-soft); font-size:14px;}
+
+  .card{
+    position:relative; background:var(--paper-2); border:1.5px solid var(--ink);
+    border-radius:14px; padding:18px 16px 16px; cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease;
+    box-shadow:3px 3px 0 rgba(34,27,20,0.18);
+  }
+  .card:hover{transform:translate(-2px,-2px); box-shadow:5px 5px 0 rgba(34,27,20,0.22);}
+  .card:focus-visible{outline:3px solid var(--indigo); outline-offset:2px;}
+
+  .corner{position:absolute; top:10px; left:12px; font-family:"IBM Plex Mono", monospace; font-size:12px; font-weight:600; line-height:1; display:flex; flex-direction:column; align-items:center; gap:2px;}
+  .corner .num{color:var(--card-color, var(--crimson));}
+  .corner .suit{font-size:11px; color:var(--card-color, var(--crimson));}
+
+  .card img.thumb{display:block; width:100%; height:120px; object-fit:contain; background:var(--paper); border-radius:8px; margin:26px 0 12px; border:1px solid rgba(34,27,20,0.15);}
+  .card .thumb-fallback{display:flex; align-items:center; justify-content:center; width:100%; height:120px; border-radius:8px; margin:26px 0 12px; border:1px dashed rgba(34,27,20,0.3); color:var(--ink-soft); font-size:12px; font-family:"IBM Plex Mono", monospace;}
+
+  .card h3{font-family:"Fraunces", serif; font-weight:600; font-size:19px; margin:0 0 8px;}
+  .chips{display:flex; flex-wrap:wrap; gap:6px;}
+  .chip{font-family:"IBM Plex Mono", monospace; font-size:11px; padding:3px 8px; border-radius:999px; background:var(--paper); border:1px solid var(--rule); color:var(--ink-soft);}
+
+  .empty-state{text-align:center; padding:20px; color:var(--ink-soft); font-size:14px; display:none;}
+
+  .detail{margin-top:56px; border-top:2px solid var(--ink); padding-top:8px;}
+  .rules{display:none; background:var(--paper-2); border:1.5px solid var(--ink); border-radius:16px; padding:30px 26px 34px; margin-top:20px; box-shadow:4px 4px 0 rgba(34,27,20,0.18); animation:reveal .25s ease;}
+  .rules.open{display:block;}
+  @keyframes reveal{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+  .rules-head{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; border-bottom:1px dashed var(--rule); padding-bottom:16px; margin-bottom:18px;}
+  .rules-head h2{font-family:"Fraunces", serif; font-size:28px; margin:0 0 6px;}
+  .rules-head-actions{display:flex; gap:8px; flex-shrink:0;}
+
+  .rules-body h4{font-family:"IBM Plex Mono", monospace; text-transform:uppercase; font-size:12px; letter-spacing:.08em; color:var(--card-color, var(--crimson)); margin:24px 0 8px;}
+  .rules-body h4:first-child{margin-top:0;}
+  .rules-body p{margin:0 0 10px; font-size:15px;}
+  .rules-body ul{margin:0 0 10px; padding-left:20px;}
+  .rules-body li{margin-bottom:6px; font-size:15px;}
+  .rules-body .callout{background:var(--paper); border-left:3px solid var(--card-color, var(--crimson)); padding:10px 14px; border-radius:4px; font-size:14px; margin:12px 0;}
+  .rules-body ol{padding-left:20px; margin:0 0 10px;}
+  .rules-body ol li{margin-bottom:8px;}
+
+  footer{text-align:center; color:var(--ink-soft); font-size:12px; font-family:"IBM Plex Mono", monospace; margin-top:70px;}
+
+  /* Modal */
+  .overlay{
+    display:none; position:fixed; inset:0; background:rgba(34,27,20,0.5);
+    align-items:flex-start; justify-content:center; padding:32px 16px; overflow-y:auto; z-index:50;
+  }
+  .overlay.open{display:flex;}
+  .modal{
+    background:var(--paper); border:1.5px solid var(--ink); border-radius:16px;
+    max-width:560px; width:100%; padding:28px; box-shadow:6px 6px 0 rgba(34,27,20,0.25);
+  }
+  .modal h3{font-family:"Fraunces", serif; font-size:24px; margin:0 0 18px;}
+  .field{margin-bottom:16px;}
+  .field label{display:block; font-family:"IBM Plex Mono", monospace; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); margin-bottom:6px;}
+  .field input[type="text"], .field textarea, .field select{
+    width:100%; padding:10px 12px; border:1.5px solid var(--rule); border-radius:8px;
+    background:#fff; font-family:"IBM Plex Sans", sans-serif; font-size:14px; color:var(--ink); outline:none;
+  }
+  .field input[type="text"]:focus, .field textarea:focus, .field select:focus{border-color:var(--ink);}
+  .field textarea{min-height:220px; font-family:"IBM Plex Mono", monospace; font-size:12.5px; line-height:1.6; resize:vertical;}
+  .field .help{font-size:11.5px; color:var(--ink-soft); margin-top:5px; line-height:1.5;}
+  .color-options{display:flex; gap:10px;}
+  .color-dot{width:28px; height:28px; border-radius:50%; cursor:pointer; border:2px solid transparent;}
+  .color-dot.selected{border-color:var(--ink); transform:scale(1.1);}
+  .modal-actions{display:flex; justify-content:space-between; align-items:center; margin-top:22px; gap:10px;}
+  .modal-actions .left{display:flex; gap:8px;}
+  .thumb-preview{width:80px; height:80px; object-fit:contain; background:var(--paper); border-radius:8px; border:1px solid var(--rule); margin-top:8px; display:none;}
+
+  @media (max-width:520px){
+    header{padding:44px 16px 28px;}
+    .grid{grid-template-columns:repeat(auto-fill, minmax(150px,1fr));}
+    .rules{padding:22px 18px 26px;}
+    .toolbar{flex-direction:column; align-items:stretch;}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <h1>Coleção de Jogos</h1>
+    <p class="sub">Catálogo dos jogos de tabuleiro e cartas que circulam por aqui. Toque num jogo pra ver as regras completas.</p>
+    <div class="suit-row">
+      <span class="pip" style="background:var(--crimson)"></span>
+      <span class="pip" style="background:var(--forest)"></span>
+      <span class="pip" style="background:var(--ochre)"></span>
+      <span class="pip" style="background:var(--indigo)"></span>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" id="tabCatalog" onclick="switchTab('catalog')">Catálogo</button>
+    <button class="tab-btn" id="tabWish" onclick="switchTab('wish')">Lista de desejos</button>
+  </div>
+
+  <!-- CATÁLOGO -->
+  <div class="section active" id="catalogSection">
+    <div class="toolbar">
+      <div class="search-bar">
+        <input type="text" id="search" placeholder="Buscar jogo pelo nome..." autocomplete="off">
+      </div>
+      <button class="btn" onclick="openModal()" data-editor-only>+ Novo jogo</button>
+    </div>
+
+    <div class="export-row" data-editor-only>
+      <button class="btn ghost" onclick="exportHtml()">⬇ Baixar catálogo atualizado</button>
+      <div class="hint">Depois de adicionar, editar ou promover jogos, baixe o arquivo e suba ele no lugar do antigo (GitHub Pages / Netlify) pra atualizar o link do grupo.</div>
+    </div>
+
+    <div class="grid" id="grid"></div>
+    <p class="empty-state" id="emptyState">Nenhum jogo encontrado com esse nome.</p>
+
+    <div class="detail" id="detail"></div>
+  </div>
+
+  <!-- LISTA DE DESEJOS -->
+  <div class="section" id="wishSection">
+    <div class="toolbar">
+      <div class="search-bar">
+        <input type="text" id="wishSearch" placeholder="Buscar na lista de desejos..." autocomplete="off">
+      </div>
+      <button class="btn" onclick="openWishModal()" data-editor-only>+ Adicionar desejo</button>
+    </div>
+
+    <div class="wish-grid" id="wishGrid"></div>
+    <p class="empty-wish" id="emptyWish" style="display:none;">Sua lista de desejos está vazia.</p>
+  </div>
+
+  <footer></footer>
+</div>
+
+<!-- MODAL: add/edit -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h3 id="modalTitle">Novo jogo</h3>
+    <input type="hidden" id="editingId">
+    <input type="hidden" id="promoteFromWishId">
+
+    <div class="field">
+      <label>Nome do jogo</label>
+      <input type="text" id="fName" placeholder="Ex: Liar's UNO — Mattel">
+    </div>
+
+    <div class="field">
+      <label>Chips de info (separados por vírgula)</label>
+      <input type="text" id="fChips" placeholder="👥 2–6 jogadores, 🎯 7+, 📦 112 cartas">
+      <div class="help">Aparecem como etiquetas no card e no topo das regras.</div>
+    </div>
+
+    <div class="field">
+      <label>Cor do jogo</label>
+      <div class="color-options" id="colorOptions">
+        <div class="color-dot" data-color="crimson" style="background:var(--crimson)"></div>
+        <div class="color-dot" data-color="forest" style="background:var(--forest)"></div>
+        <div class="color-dot" data-color="ochre" style="background:var(--ochre)"></div>
+        <div class="color-dot" data-color="indigo" style="background:var(--indigo)"></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Foto da caixa (opcional)</label>
+      <input type="file" id="fImage" accept="image/*">
+      <img id="thumbPreview" class="thumb-preview">
+    </div>
+
+    <div class="field">
+      <label>Regras</label>
+      <textarea id="fRules" placeholder="## Objetivo
+Texto do parágrafo aqui.
+
+## Preparação
+1. Primeiro passo
+2. Segundo passo
+
+## Jogando
+- Item de lista
+- Outro item
+
+> Destaque importante vai assim, com > na frente."></textarea>
+      <div class="help">
+        Use <code>## Título</code> pra criar uma seção, <code>-</code> pra lista, <code>1.</code> pra lista numerada, e <code>&gt;</code> pra um destaque/aviso. Linha em branco separa parágrafos.
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <div class="left">
+        <button class="btn danger small" id="deleteBtn" onclick="deleteCurrentGame()" style="display:none;">Excluir</button>
+      </div>
+      <div class="left">
+        <button class="btn ghost small" onclick="closeModal()">Cancelar</button>
+        <button class="btn small" onclick="saveGame()">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: lista de desejos -->
+<div class="overlay" id="wishOverlay">
+  <div class="modal">
+    <h3 id="wishModalTitle">Novo desejo</h3>
+    <input type="hidden" id="wishEditingId">
+
+    <div class="field">
+      <label>Nome do jogo</label>
+      <input type="text" id="wfName" placeholder="Ex: Wingspan">
+    </div>
+
+    <div class="field">
+      <label>Imagem (opcional)</label>
+      <input type="file" id="wfImage" accept="image/*">
+      <img id="wishThumbPreview" class="thumb-preview">
+    </div>
+
+    <div class="modal-actions">
+      <div class="left">
+        <button class="btn danger small" id="wishDeleteBtn" onclick="deleteCurrentWish()" style="display:none;">Excluir</button>
+      </div>
+      <div class="left">
+        <button class="btn ghost small" onclick="closeWishModal()">Cancelar</button>
+        <button class="btn small" onclick="saveWish()">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---------- MODO EDITOR ----------
+  // Troque "minha-chave-secreta" por uma palavra só sua.
+  // Só quem abrir o link com ?editor=minha-chave-secreta no final vê os botões de adicionar/editar/excluir/baixar.
+  const EDITOR_KEY = "minha-chave-secreta";
+  const isEditor = new URLSearchParams(window.location.search).get("editor") === EDITOR_KEY;
+  if(isEditor){ document.body.classList.add("is-editor"); }
+
+  // ---------- DATA ----------
+  let GAMES = [
+    {
+      id: "liars-uno",
+      name: "Liar's UNO — Mattel",
+      color: "crimson",
+      chips: ["👥 2–6 jogadores", "🎯 7+", "📦 112 cartas"],
+      thumb: "",
+      rules: `## Objetivo
+Ser o primeiro a se livrar de todas as cartas na mão.
+
+## Sobre o baralho
+- **Carta Normal:** sempre jogada virada pra cima (igual ao UNO tradicional).
+- **Carta de Mentiroso:** sempre jogada virada pra baixo — mais da metade do baralho é composta por essas cartas! Cada carta numérica tem uma versão Normal e uma versão Mentirosa. Quase todas as Cartas de Ação também são Cartas de Mentiroso (exceto o Curinga Desafio do Mentiroso).
+
+> Resumo: joga-se como o UNO clássico (combinando cor, número ou símbolo), mas ao jogar uma Carta de Mentiroso, ela vai virada pra baixo e você declara em voz alta qual carta é — podendo falar a verdade ou blefar. Se mentir e for desmascarado, você compra uma carta extra.
+
+## Preparação
+1. Escolha quem distribui e embaralhe.
+2. Dê 7 cartas pra cada jogador.
+3. Cartas restantes formam a Pilha de Compras, viradas pra baixo.
+4. Vire a carta do topo pra formar a Pilha de Descarte. Se for Carta de Ação, ignore e vire a próxima; se for Carta de Mentiroso, trate como Normal.
+5. Quem está à esquerda de quem distribuiu começa, sentido horário.
+
+## Jogando uma Carta Normal
+Se tiver uma Carta Normal que combine (cor, número ou símbolo) com a carta no topo, jogue-a virada pra cima. Simples assim.
+
+## Jogando uma Carta de Mentiroso
+- Se ela realmente corresponder à carta do topo: jogue virada pra baixo e diga em voz alta qual carta é — você está falando a verdade.
+- Se ela NÃO corresponder: jogue virada pra baixo e minta sobre qual é. A mentira precisa ser plausível — ex: se a carta do topo é um 3 Vermelho, você pode dizer que a sua é qualquer carta Vermelha, um número que combine (3 Azul, 3 Amarelo), ou até um Curinga Comprar 4.
+
+## Desafiando
+Depois de jogar uma carta virada pra baixo, qualquer jogador pode te desafiar:
+- Se for desafiado, revele a carta.
+- Se você estava dizendo a verdade, quem te desafiou compra 1 carta.
+- Se você estava mentindo, você pega a carta de volta e compra 1 carta.
+
+Se ninguém desafiar antes do próximo jogador começar a vez, você está seguro. Se você disse que a carta era de Ação, a ação acontece de qualquer forma, mentindo ou não.
+
+> ⚠️ Você NÃO pode jogar uma Carta Normal virada pra baixo fingindo ser Mentirosa — se for pego, pega a carta de volta e compra 6 cartas de penalidade!
+
+## Sem carta pra jogar?
+Compre da Pilha de Compras. Se a nova carta for jogável, pode jogar na hora; senão, sua vez acaba.
+
+## Gritar "UNO!"
+Ao ficar com 1 carta, grite "UNO!". Se alguém perceber e gritar antes de você, na vez do próximo jogador, você compra 2 cartas.
+
+## Regras especiais (exclusivas do Liar's UNO)
+- **Troca 7:** ao jogar um 7 de qualquer cor, você DEVE trocar sua mão inteira com a de outro jogador à sua escolha.
+- **Passa 0:** ao jogar um 0 de qualquer cor, TODOS os jogadores passam a mão pro próximo jogador na ordem da jogada.
+
+> 💡 Se um 7 ou 0 for desafiado, a carta de penalidade é comprada depois de qualquer troca de mãos.
+
+## Cartas de Ação
+Todas são Cartas de Mentiroso, exceto o Curinga Desafio:
+- **Comprar Duas (+2):** próximo jogador compra 2 e perde a vez.
+- **Pular:** próximo jogador perde a vez.
+- **Inverter:** muda o sentido do jogo.
+- **Curinga Comprar 4:** serve pra qualquer situação, independente da carta na pilha. Próximo jogador compra 4 e perde a vez; você escolhe a cor que continua.
+
+## Curinga Desafio do Mentiroso (sempre virado pra cima)
+Ao jogar, escolha uma cor e diga em voz alta. Todos os outros jogadores colocam uma carta daquela cor virada pra baixo na frente deles, dizendo qual é (curingas não contam). Quem não tiver carta daquela cor pode mentir sobre ter uma.
+
+Depois, você pode desafiar qualquer jogador a revelar a carta:
+- Se ele estava mentindo, pega a carta de volta e compra 1 carta de penalidade.
+- Você pode continuar desafiando até desafiar todos, ou até alguém revelar a cor correta — nesse caso, esse jogador e todos os que ainda não foram desafiados colocam suas cartas embaixo do Curinga Desafio, e o jogo segue normalmente na cor escolhida.
+
+> ⚠️ Se alguém descartar sua última carta dessa forma, é o vencedor! Se vários descartarem a última ao mesmo tempo, todos ganham juntos.
+
+## Como vencer
+Quando um jogador joga sua última carta e ninguém o desafia, ele venceu. Se for desafiado e pego mentindo, compra 1 carta e o jogo continua.
+
+## Pontuação (método opcional)
+- Cartas numéricas (0–9): valor da própria carta.
+- Cartas de Ação (Pular, Inverter, Comprar 2): 20 pontos.
+- Cartas Curinga (Comprar 4, Desafio do Mentiroso): 50 pontos.
+
+Mantenha a contagem por rodada — quem atingir 500 pontos primeiro, vence o jogo geral.
+
+## Acessibilidade para daltônicos
+⚫ Vermelho　✦ Amarelo　▽ Verde　⬛ Azul`
+    }
+  ];
+
+  let WISHLIST = [];
+
+  const SUITS = ["♠","♥","♣","♦"];
+
+  // ---------- MARKDOWN-LITE PARSER ----------
+  function mdToHtml(md){
+    const lines = (md || "").replace(/\r\n/g,"\n").split("\n");
+    let html = "";
+    let i = 0;
+    let para = [];
+
+    function flushPara(){
+      if(para.length){
+        html += `<p>${inline(para.join(" "))}</p>`;
+        para = [];
+      }
+    }
+    function inline(t){
+      return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+               .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    }
+
+    while(i < lines.length){
+      const line = lines[i];
+      const trimmed = line.trim();
+
+      if(trimmed === ""){ flushPara(); i++; continue; }
+
+      if(trimmed.startsWith("## ")){
+        flushPara();
+        html += `<h4>${inline(trimmed.slice(3))}</h4>`;
+        i++; continue;
+      }
+
+      if(trimmed.startsWith("> ")){
+        flushPara();
+        html += `<p class="callout">${inline(trimmed.slice(2))}</p>`;
+        i++; continue;
+      }
+
+      if(trimmed.startsWith("- ")){
+        flushPara();
+        html += "<ul>";
+        while(i < lines.length && lines[i].trim().startsWith("- ")){
+          html += `<li>${inline(lines[i].trim().slice(2))}</li>`;
+          i++;
+        }
+        html += "</ul>";
+        continue;
+      }
+
+      if(/^\d+\.\s/.test(trimmed)){
+        flushPara();
+        html += "<ol>";
+        while(i < lines.length && /^\d+\.\s/.test(lines[i].trim())){
+          html += `<li>${inline(lines[i].trim().replace(/^\d+\.\s/,""))}</li>`;
+          i++;
+        }
+        html += "</ol>";
+        continue;
+      }
+
+      para.push(trimmed);
+      i++;
+    }
+    flushPara();
+    return html;
+  }
+
+  // ---------- RENDER ----------
+  function render(){
+    const grid = document.getElementById("grid");
+    const detail = document.getElementById("detail");
+    grid.innerHTML = "";
+    detail.innerHTML = "";
+
+    GAMES.forEach((game, idx) => {
+      const suit = SUITS[idx % SUITS.length];
+      const num = String(idx + 1).padStart(2,"0");
+
+      // card
+      const card = document.createElement("div");
+      card.className = "card";
+      card.style.setProperty("--card-color", `var(--${game.color})`);
+      card.dataset.target = game.id;
+      card.dataset.name = game.name.toLowerCase();
+      card.tabIndex = 0;
+      card.setAttribute("role","button");
+      card.innerHTML = `
+        <div class="corner"><span class="num">${num}</span><span class="suit">${suit}</span></div>
+        ${game.thumb ? `<img class="thumb" src="${game.thumb}" alt="${game.name}">` : `<div class="thumb-fallback">sem foto ainda</div>`}
+        <h3>${game.name}</h3>
+        <div class="chips">${game.chips.map(c => `<span class="chip">${c}</span>`).join("")}</div>
+      `;
+      card.addEventListener("click", () => toggleRules(game.id));
+      card.addEventListener("keydown", e => { if(e.key === "Enter" || e.key === " "){ e.preventDefault(); toggleRules(game.id); }});
+      grid.appendChild(card);
+
+      // rules panel
+      const panel = document.createElement("div");
+      panel.className = "rules";
+      panel.id = game.id;
+      panel.style.setProperty("--card-color", `var(--${game.color})`);
+      panel.innerHTML = `
+        <div class="rules-head">
+          <div>
+            <h2>${game.name}</h2>
+            <div class="chips">${game.chips.map(c => `<span class="chip">${c}</span>`).join("")}</div>
+          </div>
+          <div class="rules-head-actions">
+            ${isEditor ? `<button class="btn ghost small" onclick="openModal('${game.id}')">editar</button>` : ""}
+            <button class="btn ghost small" onclick="closeRules('${game.id}')">fechar ✕</button>
+          </div>
+        </div>
+        <div class="rules-body">${mdToHtml(game.rules)}</div>
+      `;
+      detail.appendChild(panel);
+    });
+
+    applySearchFilter();
+  }
+
+  function toggleRules(id){
+    const isOpen = document.getElementById(id).classList.contains("open");
+    document.querySelectorAll(".rules").forEach(p => p.classList.remove("open"));
+    if(!isOpen){
+      document.getElementById(id).classList.add("open");
+      document.getElementById(id).scrollIntoView({behavior:"smooth", block:"start"});
+    }
+  }
+  function closeRules(id){
+    document.getElementById(id).classList.remove("open");
+  }
+
+  // ---------- TABS ----------
+  function switchTab(tab){
+    document.getElementById("catalogSection").classList.toggle("active", tab === "catalog");
+    document.getElementById("wishSection").classList.toggle("active", tab === "wish");
+    document.getElementById("tabCatalog").classList.toggle("active", tab === "catalog");
+    document.getElementById("tabWish").classList.toggle("active", tab === "wish");
+  }
+
+  // ---------- WISHLIST RENDER ----------
+  function renderWishlist(){
+    const grid = document.getElementById("wishGrid");
+    grid.innerHTML = "";
+
+    WISHLIST.forEach(item => {
+      const card = document.createElement("div");
+      card.className = "wish-card";
+      card.dataset.name = item.name.toLowerCase();
+      card.innerHTML = `
+        <span class="wish-tag">desejo</span>
+        ${isEditor ? `
+        <div class="wish-actions">
+          <button title="editar" onclick="event.stopPropagation(); openWishModal('${item.id}')">✎</button>
+          <button title="excluir" onclick="event.stopPropagation(); quickDeleteWish('${item.id}')">✕</button>
+        </div>` : ""}
+        ${item.thumb ? `<img class="wish-thumb" src="${item.thumb}" alt="${item.name}">` : `<div class="wish-thumb-fallback">sem imagem<br>${item.name}</div>`}
+        <div class="wish-name">${item.name}</div>
+      `;
+      if(isEditor){
+        card.style.cursor = "pointer";
+        card.addEventListener("click", () => promoteWish(item.id));
+      } else {
+        card.style.cursor = "default";
+      }
+      grid.appendChild(card);
+    });
+
+    applyWishSearchFilter();
+  }
+
+  function applyWishSearchFilter(){
+    const q = document.getElementById("wishSearch").value.trim().toLowerCase();
+    let visible = 0;
+    document.querySelectorAll(".wish-card").forEach(card => {
+      const match = card.dataset.name.includes(q);
+      card.style.display = match ? "" : "none";
+      if(match) visible++;
+    });
+    document.getElementById("emptyWish").style.display = (WISHLIST.length === 0 || visible === 0) ? "block" : "none";
+    document.getElementById("emptyWish").textContent = WISHLIST.length === 0
+      ? "Sua lista de desejos está vazia."
+      : "Nenhum desejo encontrado com esse nome.";
+  }
+  document.getElementById("wishSearch").addEventListener("input", applyWishSearchFilter);
+
+  // ---------- WISHLIST MODAL ----------
+  const wishOverlay = document.getElementById("wishOverlay");
+  let pendingWishThumb = "";
+
+  document.getElementById("wfImage").addEventListener("change", e => {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      pendingWishThumb = ev.target.result;
+      const preview = document.getElementById("wishThumbPreview");
+      preview.src = pendingWishThumb;
+      preview.style.display = "block";
+    };
+    reader.readAsDataURL(file);
+  });
+
+  function openWishModal(id){
+    document.getElementById("wishEditingId").value = id || "";
+    const isEdit = !!id;
+    document.getElementById("wishModalTitle").textContent = isEdit ? "Editar desejo" : "Novo desejo";
+    document.getElementById("wishDeleteBtn").style.display = isEdit ? "inline-block" : "none";
+
+    const preview = document.getElementById("wishThumbPreview");
+    if(isEdit){
+      const item = WISHLIST.find(w => w.id === id);
+      document.getElementById("wfName").value = item.name;
+      pendingWishThumb = item.thumb || "";
+    } else {
+      document.getElementById("wfName").value = "";
+      pendingWishThumb = "";
+    }
+    if(pendingWishThumb){ preview.src = pendingWishThumb; preview.style.display = "block"; }
+    else { preview.style.display = "none"; }
+    document.getElementById("wfImage").value = "";
+    wishOverlay.classList.add("open");
+  }
+
+  function closeWishModal(){
+    wishOverlay.classList.remove("open");
+  }
+  wishOverlay.addEventListener("click", e => { if(e.target === wishOverlay) closeWishModal(); });
+
+  function saveWish(){
+    const name = document.getElementById("wfName").value.trim();
+    if(!name){ alert("Dá um nome pro jogo antes de salvar."); return; }
+    const editingId = document.getElementById("wishEditingId").value;
+
+    if(editingId){
+      const item = WISHLIST.find(w => w.id === editingId);
+      item.name = name; item.thumb = pendingWishThumb;
+    } else {
+      let id = slugify(name) + "-desejo";
+      let suffix = 1;
+      while(WISHLIST.some(w => w.id === id)){ id = slugify(name) + "-desejo-" + (++suffix); }
+      WISHLIST.push({ id, name, thumb: pendingWishThumb });
+    }
+    closeWishModal();
+    renderWishlist();
+  }
+
+  function deleteCurrentWish(){
+    const editingId = document.getElementById("wishEditingId").value;
+    if(!editingId) return;
+    if(!confirm("Excluir esse item da lista de desejos?")) return;
+    WISHLIST = WISHLIST.filter(w => w.id !== editingId);
+    closeWishModal();
+    renderWishlist();
+  }
+
+  function quickDeleteWish(id){
+    if(!confirm("Excluir esse item da lista de desejos?")) return;
+    WISHLIST = WISHLIST.filter(w => w.id !== id);
+    renderWishlist();
+  }
+
+  // clicar no card promove o desejo pro catálogo completo
+  function promoteWish(id){
+    const item = WISHLIST.find(w => w.id === id);
+    if(!item) return;
+    switchTab("catalog");
+    openModal();
+    document.getElementById("fName").value = item.name;
+    pendingThumb = item.thumb || "";
+    const preview = document.getElementById("thumbPreview");
+    if(pendingThumb){ preview.src = pendingThumb; preview.style.display = "block"; }
+    document.getElementById("promoteFromWishId").value = id;
+  }
+
+  // ---------- SEARCH ----------
+  function applySearchFilter(){
+    const q = document.getElementById("search").value.trim().toLowerCase();
+    let visible = 0;
+    document.querySelectorAll(".card").forEach(card => {
+      const match = card.dataset.name.includes(q);
+      card.style.display = match ? "" : "none";
+      if(match) visible++;
+    });
+    document.getElementById("emptyState").style.display = visible === 0 ? "block" : "none";
+  }
+  document.getElementById("search").addEventListener("input", applySearchFilter);
+
+  // ---------- MODAL ----------
+  const overlay = document.getElementById("overlay");
+  let selectedColor = "crimson";
+  let pendingThumb = "";
+
+  document.getElementById("colorOptions").addEventListener("click", e => {
+    if(!e.target.classList.contains("color-dot")) return;
+    selectedColor = e.target.dataset.color;
+    updateColorSelection();
+  });
+  function updateColorSelection(){
+    document.querySelectorAll(".color-dot").forEach(d => {
+      d.classList.toggle("selected", d.dataset.color === selectedColor);
+    });
+  }
+
+  document.getElementById("fImage").addEventListener("change", e => {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      pendingThumb = ev.target.result;
+      const preview = document.getElementById("thumbPreview");
+      preview.src = pendingThumb;
+      preview.style.display = "block";
+    };
+    reader.readAsDataURL(file);
+  });
+
+  function openModal(id){
+    document.getElementById("editingId").value = id || "";
+    document.getElementById("promoteFromWishId").value = "";
+    const isEdit = !!id;
+    document.getElementById("modalTitle").textContent = isEdit ? "Editar jogo" : "Novo jogo";
+    document.getElementById("deleteBtn").style.display = isEdit ? "inline-block" : "none";
+
+    if(isEdit){
+      const game = GAMES.find(g => g.id === id);
+      document.getElementById("fName").value = game.name;
+      document.getElementById("fChips").value = game.chips.join(", ");
+      document.getElementById("fRules").value = game.rules;
+      selectedColor = game.color;
+      pendingThumb = game.thumb || "";
+      const preview = document.getElementById("thumbPreview");
+      if(pendingThumb){ preview.src = pendingThumb; preview.style.display = "block"; }
+      else { preview.style.display = "none"; }
+    } else {
+      document.getElementById("fName").value = "";
+      document.getElementById("fChips").value = "";
+      document.getElementById("fRules").value = "";
+      selectedColor = "crimson";
+      pendingThumb = "";
+      document.getElementById("thumbPreview").style.display = "none";
+    }
+    document.getElementById("fImage").value = "";
+    updateColorSelection();
+    overlay.classList.add("open");
+  }
+
+  function closeModal(){
+    overlay.classList.remove("open");
+  }
+  overlay.addEventListener("click", e => { if(e.target === overlay) closeModal(); });
+
+  function slugify(str){
+    return str.toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+      .replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"") || ("jogo-" + Date.now());
+  }
+
+  function saveGame(){
+    const name = document.getElementById("fName").value.trim();
+    if(!name){ alert("Dá um nome pro jogo antes de salvar."); return; }
+    const chips = document.getElementById("fChips").value.split(",").map(c => c.trim()).filter(Boolean);
+    const rules = document.getElementById("fRules").value;
+    const editingId = document.getElementById("editingId").value;
+    const promoteFromWishId = document.getElementById("promoteFromWishId").value;
+
+    if(editingId){
+      const game = GAMES.find(g => g.id === editingId);
+      game.name = name; game.chips = chips; game.rules = rules; game.color = selectedColor; game.thumb = pendingThumb;
+    } else {
+      let id = slugify(name);
+      let suffix = 1;
+      while(GAMES.some(g => g.id === id)){ id = slugify(name) + "-" + (++suffix); }
+      GAMES.push({ id, name, color: selectedColor, chips, thumb: pendingThumb, rules });
+    }
+
+    if(promoteFromWishId){
+      WISHLIST = WISHLIST.filter(w => w.id !== promoteFromWishId);
+      renderWishlist();
+    }
+
+    closeModal();
+    render();
+  }
+
+  function deleteCurrentGame(){
+    const editingId = document.getElementById("editingId").value;
+    if(!editingId) return;
+    if(!confirm("Excluir esse jogo do catálogo?")) return;
+    GAMES = GAMES.filter(g => g.id !== editingId);
+    closeModal();
+    render();
+  }
+
+  // ---------- EXPORT ----------
+  function exportHtml(){
+    const gamesScript = `  let GAMES = ${JSON.stringify(GAMES, null, 2)};`;
+    const wishScript = `  let WISHLIST = ${JSON.stringify(WISHLIST, null, 2)};`;
+    let updated = document.documentElement.outerHTML;
+    updated = updated.replace(
+      /let GAMES = \[[\s\S]*?\];\s*\n\n  let WISHLIST/,
+      gamesScript + "\n\n  let WISHLIST"
+    );
+    updated = updated.replace(
+      /let WISHLIST = \[[\s\S]*?\];\s*\n\n  const SUITS/,
+      wishScript + "\n\n  const SUITS"
+    );
+    const blob = new Blob(["<!DOCTYPE html>\n" + updated], {type:"text/html"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "index.html";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  render();
+  renderWishlist();
+</script>
+
+</body>
+</html>
