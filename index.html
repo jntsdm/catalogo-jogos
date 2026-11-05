@@ -613,7 +613,7 @@
 
   <!-- VOTAÇÃO COM PESO -->
   <div class="section" id="voteSection">
-    <p class="vote-intro">Cada jogo custa pontos conforme a duração e a complexidade (1 ponto ≈ 30 minutos de jogo, contando a explicação das regras). Você tem <strong>8 pontos</strong> para distribuir. Escolha seus jogos, informe seu nome e clique em <strong>Enviar voto</strong>. Se quiser mudar, é só votar de novo com o mesmo nome.</p>
+    <p class="vote-intro">Cada jogo custa pontos conforme a duração e a complexidade (1 ponto ≈ 30 minutos de jogo, contando a explicação das regras). Você tem <strong>8 pontos</strong> para distribuir. Escolha seus jogos, informe seu nome e clique em <strong>Enviar voto</strong>.</p>
 
     <div class="vote-status" id="voteStatus">
       <div class="vote-status-top">
@@ -2461,11 +2461,13 @@ Texto do parágrafo aqui.
     finishTally(counts, valid, noteText);
   }
 
-  function finishTally(counts, valid, noteText){
+  function finishTally(counts, valid, noteText, order){
     tallyRanking = Object.keys(counts).filter(id => GAMES.some(g => g.id === id)).map(id => {
       const g = GAMES.find(x => x.id === id);
       return { id, name: g.name, votes: counts[id], weight: gameWeight(g), fits: false };
-    }).sort((a, b) => b.votes - a.votes || a.weight - b.weight || a.name.localeCompare(b.name, "pt-BR"));
+    }).sort((a, b) => b.votes - a.votes ||
+      (order ? order.indexOf(a.id) - order.indexOf(b.id) : a.weight - b.weight) ||
+      a.name.localeCompare(b.name, "pt-BR"));
     const nightBudget = Math.max(1, Number(document.getElementById("tallyNightPts").value) || VOTE_BUDGET);
     let used = 0;
     tallyRanking.forEach(r => { if(used + r.weight <= nightBudget){ r.fits = true; used += r.weight; } });
@@ -2490,7 +2492,7 @@ Texto do parágrafo aqui.
       if(!r.ok) throw new Error(r.erro || "erro desconhecido");
       const counts = {};
       (r.ranking || []).forEach(x => { counts[x.id] = x.votos; });
-      finishTally(counts, r.votantes || 0, "");
+      finishTally(counts, r.votantes || 0, "", (r.ranking || []).map(x => x.id)); // mantém o desempate por horário da planilha
     }catch(e){
       box.innerHTML = '<p style="color:var(--crimson); font-size:13px; margin-top:10px;">Não consegui buscar os votos: ' + e.message + '</p>';
     }
