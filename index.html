@@ -258,6 +258,12 @@
   .roleta-result img{width:140px; height:140px; object-fit:cover; border-radius:12px; border:2px solid var(--ink);}
   .roleta-result h3{font-family:"Fraunces", serif; font-size:22px; margin:0; line-height:1.25;}
   .roleta-result .btn{margin-top:2px; font-size:12px; padding:6px 12px;}
+  .roleta-bonus{
+    width:100%; text-align:left; margin-top:4px; padding:10px 12px;
+    background:var(--paper); border:1.5px dashed var(--ink); border-radius:10px;
+    font-size:13px; line-height:1.45; white-space:pre-wrap;
+  }
+  .roleta-bonus .bonus-label{display:block; font-family:"IBM Plex Mono", monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:4px;}
   .roleta-result .origin{font-size:12.5px; color:var(--ink-soft);}
 
   .sorteio-layout{
@@ -3150,8 +3156,8 @@ Texto do parágrafo aqui.
   const ROLETA_COLORS = ["--crimson","--forest","--ochre","--indigo","--rosa","--laranja","--marrom","--roxo"];
 
   function roletaItems(key){
-    if(key === "voted") return VOTED.map(id => GAMES.find(g => g.id === id)).filter(Boolean).map(g => ({ id: g.id, name: g.name, thumb: g.thumb, origin: "Votados da vez", inCollection: true }));
-    if(key === "games") return GAMES.map(g => ({ id: g.id, name: g.name, thumb: g.thumb, origin: "Coleção", inCollection: true }));
+    if(key === "voted") return VOTED.map(id => GAMES.find(g => g.id === id)).filter(Boolean).map(g => ({ id: g.id, name: g.name, thumb: g.thumb, origin: "Votados da vez", inCollection: true, bombonus: g.bombonus }));
+    if(key === "games") return GAMES.map(g => ({ id: g.id, name: g.name, thumb: g.thumb, origin: "Coleção", inCollection: true, bombonus: g.bombonus }));
     return WISHLIST.map(w => ({ id: w.id, name: w.name, thumb: w.thumb, origin: "Lista de desejos", inCollection: false }));
   }
 
@@ -3310,6 +3316,12 @@ Texto do parágrafo aqui.
     if(it.thumb){ const img = document.createElement("img"); img.src = it.thumb; img.alt = it.name; box.appendChild(img); }
     const h = document.createElement("h3"); h.textContent = it.name; box.appendChild(h);
     const o = document.createElement("div"); o.className = "origin"; o.textContent = it.origin; box.appendChild(o);
+    const rule = (it.bombonus || "").trim();
+    if(it.inCollection && rule && rule !== "—"){
+      const bx = document.createElement("div"); bx.className = "roleta-bonus";
+      bx.innerHTML = '<span class="bonus-label">🍬 Bombônus</span>' + escHtml(rule).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/(^|[^*])\*([^*\n]+?)\*(?!\*)/g, "$1<em>$2</em>");
+      box.appendChild(bx);
+    }
     if(it.inCollection){
       const b = document.createElement("button"); b.className = "btn small ghost"; b.textContent = "Ver regras";
       b.addEventListener("click", () => { switchTab("catalog"); setTimeout(() => toggleRules(it.id), 50); });
