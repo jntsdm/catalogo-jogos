@@ -3063,7 +3063,7 @@ Texto do parágrafo aqui.
     btn.disabled = true; hint.textContent = "Enviando...";
     try{
       const r = await voteApi({ nome: nameInput.value.trim().replace(/\s+/g, " "), jogos: validMyVotes() });
-      hint.textContent = r.ok ? "Voto enviado! (" + r.pontos + " pontos). Para mudar, é só enviar de novo com o mesmo nome." : "Não foi possível enviar: " + r.erro;
+      hint.textContent = r.ok ? "Voto confirmado" : "Não foi possível enviar: " + r.erro;
     }catch(e){
       hint.textContent = "Não foi possível enviar agora. Tente de novo em instantes. (" + e.message + ")";
     }
